@@ -230,7 +230,123 @@ ggplot(statcast_bip, aes(x = launch_angle, y = launch_speed, color = outcome)) +
 
 ---
 
-## 🔍 2025 Player Swing Explorer
+## ⚾ Swing Analysis: Story & Exploration
+
+::::: {.panel-tabset}
+
+### 📖 Story
+
+When Baseball Savant added Hawk-Eye bat tracking to Statcast, it revealed a swing mechanic that traditional box-score stats could never see: **Attack Angle** (`attack_angle`), the vertical direction in degrees that the bat's sweet spot is traveling at the exact moment it meets the baseball (`0°` is perfectly level with the ground, positive angles move upward, and negative angles chop downward). Across the **1,405 tracked balls in play** in our 2025 Statcast dataset featuring Aaron Judge, Bobby Witt Jr., Kyle Stowers, and Adley Rutschman, plotting every swing's attack angle against its resulting exit velocity and batted-ball outcome exposes a clear offensive "Goldilocks" zone.
+
+```{r}
+#| fig-width: 8.5
+#| fig-height: 5.4
+
+story_aa <- statcast_bip |>
+  filter(!is.na(attack_angle))
+
+ggplot(story_aa, aes(x = attack_angle, y = launch_speed, color = outcome)) +
+  annotate(
+    "rect",
+    xmin = 10, xmax = 20, ymin = 55, ymax = 120,
+    fill = "#e63946", alpha = 0.10, color = "#e63946", linetype = "dashed", linewidth = 0.7
+  ) +
+  annotate(
+    "label",
+    x = 15, y = 116,
+    label = "OPTIMAL ATTACK WINDOW (10°–20°)\n94.5 mph Avg EV • 16%–18% Barrels • .531–.575 wOBA",
+    size = 2.9, fontface = "bold", color = "#1d3557", fill = "#f1faee", label.size = 0.3
+  ) +
+  geom_vline(xintercept = 0, linetype = "dotted", color = "gray55", linewidth = 0.7) +
+  annotate("text", x = -8.5, y = 58, label = "Downward Chop (< 0°)\n0.9% HR • Grounders", color = "gray40", size = 2.9, fontface = "italic") +
+  annotate("text", x = 26.5, y = 58, label = "Too Steep (> 20°)\n85.5 mph EV • Pop-Ups", color = "gray40", size = 2.9, fontface = "italic") +
+  geom_point(alpha = 0.72, size = 2.0) +
+  geom_smooth(
+    aes(group = 1),
+    method = "loess", se = FALSE, span = 0.65,
+    color = "#1d3557", linewidth = 1.15
+  ) +
+  geom_vline(xintercept = c(5.2, 11.0), linetype = "dotdash", color = "#1d3557", alpha = 0.55) +
+  annotate("text", x = 4.7, y = 109.5, label = "Witt Jr. Avg (5.2°)", hjust = 1, size = 2.8, fontface = "bold", color = "#1d3557") +
+  annotate("text", x = 11.4, y = 109.5, label = "Judge Avg (11.0°)", hjust = 0, size = 2.8, fontface = "bold", color = "#1d3557") +
+  scale_color_manual(values = outcome_colors) +
+  scale_x_continuous(breaks = seq(-15, 30, by = 5), labels = \(x) paste0(x, "°")) +
+  scale_y_continuous(breaks = seq(60, 115, by = 10), labels = \(x) paste0(x, " mph")) +
+  coord_cartesian(xlim = c(-15, 32), ylim = c(55, 120)) +
+  labs(
+    title = "The 10°–20° Sweet Spot: Swing Attack Angle vs. Exit Velocity & Outcome",
+    subtitle = "Solid navy curve tracks rolling average Exit Velocity; home runs and barrels surge inside the 10°–20° upward window",
+    x = "Bat Attack Angle at Impact (degrees)",
+    y = "Exit Velocity (mph)",
+    color = "Swing Outcome",
+    caption = paste0("Source: Baseball Savant 2025 Statcast CSV export (n = ", nrow(story_aa), " tracked balls in play)")
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold", size = 13.5, color = "#1d3557"),
+    plot.subtitle = element_text(color = "gray30", size = 10, margin = margin(b = 10)),
+    plot.caption = element_text(color = "gray45", size = 8.5, margin = margin(t = 10)),
+    axis.title = element_text(face = "bold", color = "#1d3557"),
+    legend.position = "top",
+    legend.title = element_text(face = "bold", color = "#1d3557"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+The static chart above shows that **swings meeting the ball on a `10°` to `20°` upward path generate by far the most destructive contact in baseball**. Inside the `10°–15°` and `15°–20°` bands, average exit velocity peaks at **`94.5 mph`**, barrel rates climb to **`15.6%–17.7%`**, extra-base hits jump to **`22.2%–24.0%`**, and hitters post a massive **`.531` to `.575` wOBA** on balls in play (`11.4%–14.6%` home runs). Outside that window, production falls off in two completely different ways: downward chops below `0°` beat the ball into the turf (`1.9°` average launch angle), yielding `32.6%` singles but an almost nonexistent **`0.9%` home run rate**, whereas overly steep uppercuts above `20°` slice underneath the baseball—causing average exit velocity to plunge nearly 9 mph to **`85.5 mph`** and barrels to collapse from `17.7%` down to **`5.7%`**.
+
+```{r}
+#| fig-width: 8.5
+#| fig-height: 3.1
+
+# Supplemental fixed context diagram: why 10°–20° matches the incoming pitch plane
+pitch_line <- tibble(x = c(18, -14), y = c(3.2, -1.6)) # ~8.5° downward pitch descent
+
+plane_df <- tibble(
+  x0 = c(-4, -4, -4),
+  y0 = c(0.2, -0.5, -1.2),
+  ang = c(-5, 14, 26),
+  label = c("Downward Chop (-5°): Grounders", "On-Plane Sweet Spot (+14°): Barrels", "Steep Uppercut (+26°): Pop-Ups"),
+  col = c("#2a9d8f", "#e63946", "#adb5bd")
+) |>
+  mutate(
+    rad = ang * pi / 180,
+    x1 = x0 + 13 * cos(rad),
+    y1 = y0 + 13 * sin(rad)
+  )
+
+ggplot() +
+  annotate("rect", xmin = -16, xmax = 20, ymin = -4.2, ymax = 5.8, fill = "#f8f9fa", color = "gray80") +
+  annotate("polygon", x = c(-3.5, 3.5, 2.4, -2.4), y = c(-3.4, -3.4, -3.9, -3.9), fill = "white", color = "#1d3557", linewidth = 0.8) +
+  annotate("text", x = 0, y = -2.85, label = "HOME PLATE (SIDE VIEW)", size = 2.6, fontface = "bold", color = "#1d3557") +
+  geom_line(data = pitch_line, aes(x, y), color = "#1d3557", linewidth = 1.2, linetype = "dashed",
+            arrow = arrow(length = unit(0.22, "cm"), type = "closed")) +
+  annotate("text", x = 12.5, y = 3.35, label = "Incoming Pitch Plane (~6° to 10° downward)", size = 3.0, fontface = "bold", color = "#1d3557") +
+  geom_segment(
+    data = plane_df,
+    aes(x = x0, y = y0, xend = x1, yend = y1, color = col),
+    linewidth = 1.6, arrow = arrow(length = unit(0.22, "cm"), type = "closed")
+  ) +
+  annotate("point", x = -1.2, y = 0.3, size = 4.2, shape = 21, fill = "#ffb703", color = "#1d3557", stroke = 1.0) +
+  annotate("text", x = 9.8, y = -0.95, label = "Chop (< 0°): Cuts across ball → topspin grounder", hjust = 0, size = 2.85, fontface = "bold", color = "#2a9d8f") +
+  annotate("text", x = 9.2, y = 2.25, label = "Optimal (+10° to +20°): Matches pitch plane → flush carry", hjust = 0, size = 2.95, fontface = "bold", color = "#e63946") +
+  annotate("text", x = 5.5, y = 4.85, label = "Steep (> 20°): Clips bottom of ball → glancing pop-up", hjust = 0, size = 2.85, fontface = "bold", color = "gray40") +
+  scale_color_identity() +
+  coord_fixed(xlim = c(-16, 28), ylim = c(-4.3, 5.9), expand = FALSE) +
+  labs(
+    title = "Why 10°–20° Works: Matching the Downward Plane of an MLB Pitch",
+    subtitle = "Because pitches descend across the plate at 6°–10°, a 10°–20° upward barrel path stays flush with the ball longest"
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 12.5, color = "#1d3557", margin = margin(b = 3)),
+    plot.subtitle = element_text(size = 9.5, color = "gray35", margin = margin(b = 6))
+  )
+```
+
+The physics diagram above puts this sweet spot into context: because a pitcher releases the baseball from an elevated mound, nearly every fastball and breaking ball crosses home plate moving **downward at `6°` to `10°`**. A hitter whose barrel rises at **`10°` to `20°`** meets that descending pitch nearly head-on, keeping the sweet spot aligned with the ball's path across a wider timing window instead of grazing it at a single point. That explains the distinct player archetypes in our dataset: power hitters **Aaron Judge (`11.0°` average attack angle, `.583` wOBA)** and **Kyle Stowers (`10.0°`, `.518` wOBA)** live right at the front door of the `10°–20°` damage zone, while **Bobby Witt Jr. (`5.2°`, `.422` wOBA)** intentionally trades loft (`4.6%` home runs per ball in play) for a flatter line-drive stroke that lets his elite bat speed (`74.6 mph`) and sprint speed turn hard grounders and low liners into extra bases.
+
+### 🔍 Exploration
 
 Use the dropdown menu below to inspect real **2025 Statcast swing outcomes** exported from Baseball Savant for four featured hitters: **Kyle Stowers**, **Adley Rutschman**, **Aaron Judge**, and **Bobby Witt Jr.**
 
@@ -775,3 +891,5 @@ function switchPlayer(playerId) {
 }
 </script>
 ```
+
+:::::
