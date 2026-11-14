@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.19">
+<meta name="generator" content="quarto-1.11.9">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Ethan Katz">
-<meta name="dcterms.date" content="2026-11-07">
+<meta name="dcterms.date" content="2026-11-14">
 
 <title>Analyzing MLB Swing Outcomes with Statcast Pitch-by-Pitch Data</title>
 <style>
@@ -34,14 +34,15 @@ ul.task-list li input[type="checkbox"] {
 <script src="project_files/libs/clipboard/clipboard.min.js"></script>
 <script src="project_files/libs/quarto-html/quarto.js" type="module"></script>
 <script src="project_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="project_files/libs/quarto-html/scrollable-regions/scrollable-regions.js" type="module"></script>
 <script src="project_files/libs/quarto-html/popper.min.js"></script>
 <script src="project_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="project_files/libs/quarto-html/anchor.min.js"></script>
 <link href="project_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="project_files/libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="project_files/libs/quarto-html/quarto-syntax-highlighting-63b5708e65d6cd79cd7618c58d0c21e7.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="project_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="project_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="project_files/libs/bootstrap/bootstrap-cb737696dd06486907558e3ddee1b241.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="project_files/libs/bootstrap/bootstrap-e8a90652a2375fadc7cfad6e77d2bca0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <style>html{ scroll-behavior: smooth; }</style>
 <style>
 
@@ -93,7 +94,7 @@ window.Quarto = {
 
 </head>
 
-<body class="quarto-light">
+<body class="quarto-light"><a id="quarto-skip-link" class="visually-hidden-focusable" href="#quarto-document-content">Skip to main content</a>
 
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
@@ -116,7 +117,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">November 7, 2026</p>
+        <p class="date">November 14, 2026</p>
       </div>
     </div>
     
@@ -126,18 +127,18 @@ window.Quarto = {
   
   </header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  <nav id="TOC" role="doc-toc" class="toc-active">
+  <nav id="TOC" role="doc-toc" aria-labelledby="toc-title" class="toc-active">
     <h2 id="toc-title">Project Sections</h2>
    
   <ul>
   <li><a href="#introduction-project-plans" id="toc-introduction-project-plans" class="nav-link active" data-scroll-target="#introduction-project-plans">⚾ Introduction &amp; Project Plans</a></li>
   <li><a href="#data-key-variables" id="toc-data-key-variables" class="nav-link" data-scroll-target="#data-key-variables">📊 Data &amp; Key Variables</a></li>
   <li><a href="#league-wide-data-visualization" id="toc-league-wide-data-visualization" class="nav-link" data-scroll-target="#league-wide-data-visualization">📈 League-Wide Data Visualization</a></li>
-  <li><a href="#player-swing-explorer" id="toc-player-swing-explorer" class="nav-link" data-scroll-target="#player-swing-explorer">🔍 2025 Player Swing Explorer</a></li>
+  <li><a href="#swing-analysis-story-exploration" id="toc-swing-analysis-story-exploration" class="nav-link" data-scroll-target="#swing-analysis-story-exploration">⚾ Swing Analysis: Story &amp; Exploration</a></li>
   </ul>
 </nav>
 </div>
-<main class="content quarto-banner-title-block" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content" tabindex="-1">
 
 
 
@@ -334,8 +335,35 @@ h2 {
 </div>
 <hr>
 </section>
-<section id="player-swing-explorer" class="level2">
-<h2 class="anchored" data-anchor-id="player-swing-explorer">🔍 2025 Player Swing Explorer</h2>
+<section id="swing-analysis-story-exploration" class="level2">
+<h2 class="anchored" data-anchor-id="swing-analysis-story-exploration">⚾ Swing Analysis: Story &amp; Exploration</h2>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" href="">📖 Story</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false" href="">🔍 Exploration</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<p>When Baseball Savant added Hawk-Eye bat tracking to Statcast, it revealed a swing mechanic that traditional box-score stats could never see: <strong>Attack Angle</strong> (<code>attack_angle</code>), the vertical direction in degrees that the bat’s sweet spot is traveling at the exact moment it meets the baseball (<code>0°</code> is perfectly level with the ground, positive angles move upward, and negative angles chop downward). Across the <strong>1,405 tracked balls in play</strong> in our 2025 Statcast dataset featuring Aaron Judge, Bobby Witt Jr., Kyle Stowers, and Adley Rutschman, plotting every swing’s attack angle against its resulting exit velocity and batted-ball outcome exposes a clear offensive “Goldilocks” zone.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="project_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="816"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The static chart above shows that <strong>swings meeting the ball on a <code>10°</code> to <code>20°</code> upward path generate by far the most destructive contact in baseball</strong>. Inside the <code>10°–15°</code> and <code>15°–20°</code> bands, average exit velocity peaks at <strong><code>94.5 mph</code></strong>, barrel rates climb to <strong><code>15.6%–17.7%</code></strong>, extra-base hits jump to <strong><code>22.2%–24.0%</code></strong>, and hitters post a massive <strong><code>.531</code> to <code>.575</code> wOBA</strong> on balls in play (<code>11.4%–14.6%</code> home runs). Outside that window, production falls off in two completely different ways: downward chops below <code>0°</code> beat the ball into the turf (<code>1.9°</code> average launch angle), yielding <code>32.6%</code> singles but an almost nonexistent <strong><code>0.9%</code> home run rate</strong>, whereas overly steep uppercuts above <code>20°</code> slice underneath the baseball—causing average exit velocity to plunge nearly 9 mph to <strong><code>85.5 mph</code></strong> and barrels to collapse from <code>17.7%</code> down to <strong><code>5.7%</code></strong>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="project_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="816"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The physics diagram above puts this sweet spot into context: because a pitcher releases the baseball from an elevated mound, nearly every fastball and breaking ball crosses home plate moving <strong>downward at <code>6°</code> to <code>10°</code></strong>. A hitter whose barrel rises at <strong><code>10°</code> to <code>20°</code></strong> meets that descending pitch nearly head-on, keeping the sweet spot aligned with the ball’s path across a wider timing window instead of grazing it at a single point. That explains the distinct player archetypes in our dataset: power hitters <strong>Aaron Judge (<code>11.0°</code> average attack angle, <code>.583</code> wOBA)</strong> and <strong>Kyle Stowers (<code>10.0°</code>, <code>.518</code> wOBA)</strong> live right at the front door of the <code>10°–20°</code> damage zone, while <strong>Bobby Witt Jr.&nbsp;(<code>5.2°</code>, <code>.422</code> wOBA)</strong> intentionally trades loft (<code>4.6%</code> home runs per ball in play) for a flatter line-drive stroke that lets his elite bat speed (<code>74.6 mph</code>) and sprint speed turn hard grounders and low liners into extra bases.</p>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>Use the dropdown menu below to inspect real <strong>2025 Statcast swing outcomes</strong> exported from Baseball Savant for four featured hitters: <strong>Kyle Stowers</strong>, <strong>Adley Rutschman</strong>, <strong>Aaron Judge</strong>, and <strong>Bobby Witt Jr.</strong></p>
 <div id="selector-bar" class="player-selector-bar">
   <label for="player-select">⚾ Select a Hitter (2025 Season):</label>
@@ -354,7 +382,7 @@ h2 {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="project_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="816"></p>
 </figure>
 </div>
 </div>
@@ -370,7 +398,7 @@ h2 {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="project_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="816"></p>
 </figure>
 </div>
 </div>
@@ -384,7 +412,7 @@ h2 {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="project_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="816"></p>
 </figure>
 </div>
 </div>
@@ -400,7 +428,7 @@ h2 {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="project_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="816"></p>
 </figure>
 </div>
 </div>
@@ -414,7 +442,7 @@ h2 {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="project_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="816"></p>
 </figure>
 </div>
 </div>
@@ -430,7 +458,7 @@ h2 {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="project_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="816"></p>
 </figure>
 </div>
 </div>
@@ -444,7 +472,7 @@ h2 {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="project_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="816"></p>
 </figure>
 </div>
 </div>
@@ -460,7 +488,7 @@ h2 {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="project_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="816"></p>
+<p><img src="project_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="816"></p>
 </figure>
 </div>
 </div>
@@ -487,6 +515,9 @@ function switchPlayer(playerId) {
   }
 }
 </script>
+</div>
+</div>
+</div>
 </section>
 
 </main>
@@ -569,7 +600,8 @@ function switchPlayer(playerId) {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
       // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      window.quartoDecorateExternalLinks = function (root) {
+     var links = (root || window.document).querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
       for (var i=0; i<links.length; i++) {
         const link = links[i];
         if (!isInternal(link.href)) {
@@ -578,8 +610,69 @@ function switchPlayer(playerId) {
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+          if (!link.classList.contains('no-external-icon')) {
+          }
         }
       }
+      };
+      window.quartoDecorateExternalLinks(window.document);
+    // Esc closes the popup (WCAG 1.4.13) and focus leaving both trigger and
+    // popup closes it (WCAG 2.4.11); tippy handles neither for interactive popups.
+    const hideOnEscAndFocusOut = {
+      name: 'hideOnEscAndFocusOut',
+      defaultValue: true,
+      fn(instance) {
+        const dismiss = () => {
+          // A show scheduled by the trigger delay would otherwise reopen it
+          instance.clearDelayTimeouts();
+          instance.hide();
+        };
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') {
+            return;
+          }
+          // Keep Esc from also reaching page handlers (e.g. reveal.js overview),
+          // except an open reveal.js slide menu, which Esc should close too.
+          // The menu handles keys only when its keyboard option is on.
+          const menuHandlesEsc = window.Reveal?.getPlugin?.('menu')?.isOpen() &&
+            window.Reveal.getConfig().menu?.keyboard !== false;
+          if (!menuHandlesEsc) {
+            event.stopPropagation();
+          }
+          if (instance.popper.contains(window.document.activeElement)) {
+            // Disabled while refocusing so the focus trigger does not reopen it
+            instance.disable();
+            instance.reference.focus();
+            instance.enable();
+          }
+          dismiss();
+        };
+        const onFocusOut = (event) => {
+          const target = event.relatedTarget;
+          if (target && !instance.reference.contains(target) &&
+              !instance.popper.contains(target)) {
+            dismiss();
+          }
+        };
+        // On the trigger too: a click trigger (code-annotations: select) has no
+        // blur handling. Attached for the instance's lifetime so leaving the
+        // trigger also cancels a show still pending on the trigger delay.
+        instance.reference.addEventListener('focusout', onFocusOut);
+        return {
+          onShow() {
+            window.document.addEventListener('keydown', onKeyDown, true);
+            instance.popper.addEventListener('focusout', onFocusOut);
+          },
+          onHide() {
+            window.document.removeEventListener('keydown', onKeyDown, true);
+            instance.popper.removeEventListener('focusout', onFocusOut);
+          },
+          onDestroy() {
+            instance.reference.removeEventListener('focusout', onFocusOut);
+          },
+        };
+      },
+    };
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
       const config = {
         allowHTML: true,
@@ -593,6 +686,7 @@ function switchPlayer(playerId) {
         interactiveBorder: 10,
         theme: 'quarto',
         placement: 'bottom-start',
+        plugins: [hideOnEscAndFocusOut],
       };
       if (contentFn) {
         config.content = contentFn;
@@ -755,44 +849,54 @@ function switchPlayer(playerId) {
           const lineIds = lines.map((line) => {
             return targetCell + "-" + line;
           })
-          let top = null;
-          let height = null;
-          let parent = null;
+          // Each band is positioned against its own containing block, which is
+          // not the offsetParent of the lines, so place it from client rects.
+          const placeBand = (band, firstEl, lastEl, codeBlock) => {
+            const container = band.offsetParent;
+            if (container === null) {
+              return;
+            }
+            const containerRect = container.getBoundingClientRect();
+            // Reveal.js scales slides with a transform, so convert client
+            // pixels back to the CSS pixels of the container.
+            const scale = containerRect.height / container.offsetHeight || 1;
+            const firstRect = firstEl.getBoundingClientRect();
+            const lastRect = lastEl.getBoundingClientRect();
+            const top = (firstRect.top - containerRect.top) / scale - container.clientTop + container.scrollTop;
+            const height = (lastRect.bottom - firstRect.top) / scale;
+            band.style.top = top - 2 + "px";
+            band.style.height = height + 4 + "px";
+            if (codeBlock) {
+              // Without the copy button wrapper, the containing block is wider
+              // than the code block, so span the code block explicitly.
+              const blockRect = codeBlock.getBoundingClientRect();
+              band.style.left = (blockRect.left - containerRect.left) / scale - container.clientLeft + container.scrollLeft + "px";
+              band.style.width = blockRect.width / scale + "px";
+            }
+          };
           if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
+            const el = window.document.getElementById(lineIds[0]);
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const parent = el.parentElement.parentElement;
+            // cook up a div (if necessary) and position it
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
             }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
+            placeBand(div, el, lastEl, parent.closest("div.sourceCode") || parent);
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
             }
+            placeBand(gutterDiv, el, lastEl);
             selectedAnnoteEl = annoteEl;
           }
         };
@@ -890,6 +994,9 @@ function switchPlayer(playerId) {
       }
     }
   });
+  </script>
+  <script type="application/javascript">
+  window.quartoScrollableRegionsLabels = {"code":"Scrollable code","output":"Scrollable output"};
   </script>
 </div> <!-- /content -->
 
